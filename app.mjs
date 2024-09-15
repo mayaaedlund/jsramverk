@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post("/", async (req, res) => {
     const result = await documents.addOne(req.body);
 
-    return res.redirect(`/${result.lastID}`);
+    return res.redirect('/');
 });
 
 app.get('/:id', async (req, res) => {
@@ -45,18 +45,18 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/update', async (req, res) => {
-    const { id, title, content } = req.body; // Hämta data från request body
+    const { id, title, content } = req.body;
 
     try {
         const result = await documents.updateOne(id, { title, content });
 
         if (result.changes > 0) {
-            return res.redirect(`/${id}`); // Omdirigera till det uppdaterade dokumentet om uppdateringen lyckas
+            return res.redirect('/');
         } else {
-            return res.status(404).send('Document not found'); // Hantera fallet när inget dokument uppdaterades
+            return res.status(404).send('Document not found');
         }
     } catch (err) {
-        return res.status(500).send('Error updating document'); // Hantera eventuella fel
+        return res.status(500).send('Error updating document');
     }
 });
 
