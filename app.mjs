@@ -44,6 +44,22 @@ app.get('/', async (req, res) => {
     return res.render("index", { docs: await documents.getAll() });
 });
 
+app.post('/update', async (req, res) => {
+    const { id, title, content } = req.body; // Hämta data från request body
+
+    try {
+        const result = await documents.updateOne(id, { title, content });
+
+        if (result.changes > 0) {
+            return res.redirect(`/${id}`); // Omdirigera till det uppdaterade dokumentet om uppdateringen lyckas
+        } else {
+            return res.status(404).send('Document not found'); // Hantera fallet när inget dokument uppdaterades
+        }
+    } catch (err) {
+        return res.status(500).send('Error updating document'); // Hantera eventuella fel
+    }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 });

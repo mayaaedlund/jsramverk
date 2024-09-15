@@ -3,4 +3,16 @@
     <% docs.forEach(function(doc){ %>
         <h3><a href="/<%= doc.id %>"><%= doc.title %></a></h3>
     <% }); %>
+
+    <h2>Skapa nytt dokument</h2>
+    <form action="/" method="POST">
+        <label for="title">Titel:</label>
+        <input type="text" id="title" name="title" required><br>
+
+        <label for="content">Innehåll:</label>
+        <textarea id="content" name="content" required></textarea><br>
+
+        <button type="submit">Skapa dokument</button>
+    </form>
+
 <%- include('includes/footer'); %>
