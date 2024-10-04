@@ -1,17 +1,19 @@
-import openDb from './db/database.mjs';
+//import openDb from './db/database.mjs';
+
+import database from './database.mjs';
 
 const docs = {
     getAll: async function getAll() {
-        let db = await openDb();
+        let db = await database.getDb();
 
         try {
-            return await db.all('SELECT rowid as id, * FROM documents');
+            return await db.collection.find().toArray();
         } catch (e) {
             console.error(e);
 
             return [];
         } finally {
-            await db.close();
+            await db.client.close();
         }
     },
 
