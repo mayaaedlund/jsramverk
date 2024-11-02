@@ -15,7 +15,8 @@ const database = {
               strict: true,
               deprecationErrors: true,
             }
-          });
+        });
+
         const db = await client.db();
         const collection = await db.collection("documents");
 
@@ -27,4 +28,3 @@ const database = {
 };
 
 export default database;
-
