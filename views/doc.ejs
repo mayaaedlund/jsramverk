@@ -1,12 +1,13 @@
 <%- include('includes/header'); %>
-    <h2>Dokument</h2>
-    <form method="POST" action="/" class="new-doc">
-        <label for="title">Titel</label>
-        <input type="text" name="title" value="<%= doc.title %>" />
+<h2>Dokument</h2>
+<form method="POST" action="/posts/update" class="new-doc"> <!-- Ange action till /posts/update -->
+    <input type="hidden" name="id" value="<%= doc._id %>" /> <!-- Dölja ID:t -->
+    <label for="title">Titel</label>
+    <input type="text" name="title" value="<%= doc.title %>" />
 
-        <label for="content">Innehåll</label>
-        <textarea name="content"><%= doc.content %></textarea>
+    <label for="content">Innehåll</label>
+    <textarea name="content"><%= doc.content %></textarea>
 
-        <input type="submit" value="Uppdatera" />
-    </form>
+    <input type="submit" value="Uppdatera" />
+</form>
 <%- include('includes/footer'); %>
