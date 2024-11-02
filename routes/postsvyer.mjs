@@ -7,41 +7,51 @@ router.post("/", async (req, res) => {
     try {
         const result = await documents.addOne(req.body);
         console.log('Inserted document ID:', result.insertedId); // Logga det insatta ID:t
-        return res.status(201).json({ id: result.insertedId }); // Returnera ID för det insatta dokumentet
+        return res.redirect(`/posts`);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Fel vid skapande av dokument' });
+        return res.status(500).send('Fel vid skapande av dokument');
     }
 });
 
 
-// Hämta ett specifikt dokument
+
+
 router.get('/:id', async (req, res) => {
-    const doc = await documents.getOne(req.params.id);
-    if (Object.keys(doc).length === 0) {
-        return res.status(404).json({ error: 'Dokument ej hittat' });
-    }
-    return res.json(doc);
+    return res.render(
+        "doc",
+        { doc: await documents.getOne(req.params.id) }
+    );
 });
 
-// Hämta alla dokument
 router.get('/', async (req, res) => {
     const docs = await documents.getAll();
-    return res.json(docs);
+
+    console.log(docs);
+
+    //return res.json({
+    //    data: docs
+    //});
+
+    return res.render("index", { docs: await documents.getAll() });
 });
 
 
-// Uppdatera ett dokument
 router.post('/update', async (req, res) => {
     const { id, title, content } = req.body;
 
     try {
+        // Försök att uppdatera dokumentet
         await documents.updateOne(id, { title, content });
-        return res.status(200).json({ message: 'Dokument uppdaterat' });
+
+        // Oavsett om ändringar gjordes eller inte, redirecta till /posts
+        return res.redirect('/posts'); 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Fel vid uppdatering av dokument' });
+        console.error(err); // Logga felet för debugging
+        return res.status(500).send('Error updating document');
     }
 });
+
+
 
 export default router;
