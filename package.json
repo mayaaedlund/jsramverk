@@ -38,8 +38,20 @@
     "nyc": "^14.1.1"
   },
   "nyc": {
-    "reporter": ["text", "html"],
-    "exclude": ["test/**"],
-    "extension": [".js", ".mjs"]
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "test/**"
+    ],
+    "include": [
+      "app.mjs", 
+      "routes/*.mjs"
+    ],
+    "extension": [
+      ".js",
+      ".mjs"
+    ]
   }
 }

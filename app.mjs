@@ -14,7 +14,6 @@ import posts from "./routes/posts.mjs";
 const app = express();
 
 app.disable('x-powered-by');
-
 app.set("view engine", "ejs");
 
 app.use(cors());
