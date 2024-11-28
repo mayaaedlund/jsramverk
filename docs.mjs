@@ -42,12 +42,13 @@ const docs = {
             const result = await db.collection.insertOne({
                 title: body.title,
                 content: body.content,
-                createdAt: new Date(), // Om du vill ha en timestamp
+                owner: body.username,
+                access: body.email
             });
             return result;
         } catch (e) {
-            console.error('Error inserting document:', e); // Logga eventuella fel
-            throw e; // Kasta felet vidare så att det kan fångas i router
+            console.error('Error inserting document:', e);
+            throw e;
         } finally {
             await db.client.close();
         }
@@ -59,7 +60,7 @@ const docs = {
         try {
             const result = await db.collection.updateOne(
                 { _id: new ObjectId(id) },
-                { $set: { title: body.title, content: body.content } }
+                { $set: { title: body.title, content: body.content, access: body.email } }
             );
             return result;
         } finally {

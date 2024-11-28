@@ -1,0 +1,41 @@
+import database from "../database.mjs";
+
+const users = {
+    getAll: async function (res, apiKey) {
+        let db;
+
+        try {
+            db = await database.getDb();
+
+            const filter = { key: apiKey };
+            const suppress = { users: { email: 1, password: 0 }};
+
+            const keyObject = await db.collection.findOne(filter, suppress);
+
+            let returnObject = [];
+
+            if (keyObject.users) {
+                returnObject = keyObject.users.map(function (user) {
+                    return { user_id: user.user_id, email: user.email };  // Add user_id here
+                });                
+            }
+
+            return res.status(200).json({
+                data: returnObject
+            });
+        } catch (err) {
+            return res.status(500).json({
+                error: {
+                    status: 500,
+                    path: "/users",
+                    title: "Database error",
+                    message: err.message
+                }
+            });
+        } finally {
+            await db.client.close();
+        }
+    }
+};
+
+export default users;

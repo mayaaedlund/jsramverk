@@ -6,15 +6,13 @@ import documents from "../docs.mjs";
 router.post("/", async (req, res) => {
     try {
         const result = await documents.addOne(req.body);
-        console.log('Inserted document ID:', result.insertedId); // Logga det insatta ID:t
+        console.log('Inserted document ID:', result.insertedId);
         return res.redirect(`/posts`);
     } catch (error) {
         console.error(error);
         return res.status(500).send('Fel vid skapande av dokument');
     }
 });
-
-
 
 
 router.get('/:id', async (req, res) => {
@@ -41,13 +39,11 @@ router.post('/update', async (req, res) => {
     const { id, title, content } = req.body;
 
     try {
-        // Försök att uppdatera dokumentet
         await documents.updateOne(id, { title, content });
 
-        // Oavsett om ändringar gjordes eller inte, redirecta till /posts
         return res.redirect('/posts'); 
     } catch (err) {
-        console.error(err); // Logga felet för debugging
+        console.error(err);
         return res.status(500).send('Error updating document');
     }
 });
