@@ -1,38 +1,63 @@
 import 'dotenv/config';
-
-const port = process.env.PORT;
-
 import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
-import formData from 'form-data';
-import mg from 'mailgun.js';
 
 import docs from "./docs.mjs";
-
 import posts from "./routes/posts.mjs";
 import auth from "./routes/auth.mjs";
 import users from "./routes/users.mjs";
 import data from "./routes/data.mjs";
-
 import authModel from "./models/auth.mjs";
 
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+
 const app = express();
+const httpServer = createServer(app);
 
-const mailgun = () =>
-  mg({
-      apiKey: process.env.MAILGUN_API_KEY,
-      domain: process.env.MAILGUN_DOMAIN,
-  })
+// Setup för Socket.IO
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000", // Klientens URL
+    methods: ["GET", "POST"], // HTTP-metoder tillåtna för Socket.IO
+  }
+});
 
+// Hantera socket-anslutningar
+io.on('connection', (socket) => {
+  console.log('En användare har anslutit', socket.id);
+
+  // När klienten skapar ett rum (dokument)
+  socket.on('create', (room) => {
+    console.log(`Ansluter användare till rum med ID: ${room}`);
+    socket.join(room);  // Skapar ett rum kopplat till dokumentets ID
+  });
+
+  // När servern tar emot en uppdatering från klienten om dokument
+  socket.on('doc', (data) => {
+    console.log('Mottagen data från klienten:', data);
+    // Skicka data till alla andra anslutna klienter i samma rum
+    socket.to(data._id).emit('doc', data); 
+    // Här kan du även lägga till kod för att spara till databas
+  });
+
+  // Hantera när en användare kopplas bort
+  socket.on('disconnect', () => {
+    console.log('Användare kopplade bort');
+  });
+});
+
+
+// Grundinställningar för Express
 app.disable('x-powered-by');
 app.set("view engine", "ejs");
 
 app.use(cors());
-
 app.use(express.static(path.join(process.cwd(), "public")));
 
+// Logger för produktion
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
 }
@@ -52,8 +77,9 @@ app.get("/", (req, res) => res.send("Hejsan, hoppsan"));
 
 docs.getAll();
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+// Starta servern
+httpServer.listen(process.env.PORT, () => {
+  console.log(`Appen körs på port ${process.env.PORT}`);
 });
 
 export default app;
