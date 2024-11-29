@@ -29,7 +29,8 @@
     "mailgun-js": "^0.22.0",
     "mailgun.js": "^10.2.4",
     "mongodb": "^6.10.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -57,5 +58,9 @@
       ".js",
       ".mjs"
     ]
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.5"
   }
 }
