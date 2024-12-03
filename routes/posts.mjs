@@ -11,8 +11,6 @@ const mailgun = new Mailgun(formData);
 const mg = mailgun.client({username: 'api', key: process.env.MAILGUN_API_KEY});
 
 
-
-
 // Skapa ett nytt dokument
 router.post("/", async (req, res) => {
     try {
@@ -70,7 +68,7 @@ router.post('/email', (req, res) => {
     mg.messages.create(process.env.MAILGUN_DOMAIN, {
         from: 'Excited User <mailgun@sandbox85321a4b41e4402297f7e0272f8179a9.mailgun.org>',
         to: [email],
-        subject: "Inbjudan att redigera dokument",
+        subject: `Inbjudan att redigera dokumentet ${title}`,
         text: "hejhej",
         html: `<p>Registrera dig och börja redigera <a href="http://localhost:3000/register">här</a></p>`,
     })
