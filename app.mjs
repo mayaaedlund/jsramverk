@@ -17,6 +17,8 @@ import { Server } from 'socket.io';
 const app = express();
 const httpServer = createServer(app);
 
+import documents from "./docs.mjs";
+
 // Setup för Socket.IO
 const io = new Server(httpServer, {
   cors: {
@@ -42,6 +44,15 @@ io.on('connection', (socket) => {
     socket.to(data._id).emit('doc', data); 
     // Här kan du även lägga till kod för att spara till databas
   });
+
+  // När en kommentar tas emot från en klient
+  socket.on('comment', (data) => {
+    console.log('Received comment:', data);
+
+    // Sänd vidare till alla andra klienter som är anslutna
+    socket.broadcast.emit('comment', data);
+  });
+
 
   // Hantera när en användare kopplas bort
   socket.on('disconnect', () => {
