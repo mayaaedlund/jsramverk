@@ -66,7 +66,39 @@ const docs = {
         } finally {
             await db.client.close();
         }
+    },
+
+    // Lägger till en kommentar till ett dokument
+    addComment: async function addComment(id, line, comment, username) {
+        let db = await database.getDb();
+        try {
+            const result = await db.collection.updateOne(
+                { _id: new ObjectId(id) },
+                { $push: { comments: { line, comment, username, created_at: new Date() } } } // Lägg till kommentar med användarnamn och skapelsedatum
+            );
+            return result; // Returnera resultatet av kommentartillägget
+        } catch (e) {
+            console.error("Error adding comment:", e);
+            throw e; // Hantera fel vid tillägg av kommentar
+        } finally {
+            await db.client.close();
+        }
+    },
+    
+    // Hämtar alla kommentarer för ett specifikt dokument
+    getComments: async function getComments(id) {
+        let db = await database.getDb();
+        try {
+            const doc = await db.collection.findOne({ _id: new ObjectId(id) });
+            return doc ? doc.comments : []; // Returnera kommentarer om de finns, annars en tom array
+        } catch (e) {
+            console.error("Error fetching comments:", e);
+            return []; // Hantera eventuella fel genom att returnera en tom array
+        } finally {
+            await db.client.close();
+        }
     }
 };
+    
 
 export default docs;
