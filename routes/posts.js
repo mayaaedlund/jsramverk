@@ -1,22 +1,18 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import documents from "../docs.mjs";
-import formData from 'form-data';
+const documents = require('../docs.js');
+const FormData = require('form-data');
+const Mailgun = require('mailgun.js');
 
-
-
-import Mailgun from 'mailgun.js';
-
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({username: 'api', key: process.env.MAILGUN_API_KEY});
-
+const mailgun = new Mailgun(FormData);
+const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY });
 
 // Skapa ett nytt dokument
 router.post("/", async (req, res) => {
     try {
         const result = await documents.addOne(req.body);
-        console.log('Inserted document ID:', result.insertedId); // Logga det insatta ID:t
-        return res.status(201).json({ id: result.insertedId }); // Returnera ID för det insatta dokumentet
+        console.log('Inserted document ID:', result.insertedId);
+        return res.status(201).json({ id: result.insertedId });
     } catch (error) {
         console.error('Error creating document:', error);
         return res.status(500).json({ error: 'Fel vid skapande av dokument' });
@@ -39,10 +35,14 @@ router.get('/:id', async (req, res) => {
 
 // Hämta alla dokument
 router.get('/', async (req, res) => {
-    const docs = await documents.getAll();
-    return res.json(docs);
+    try {
+        const docs = await documents.getAll();
+        return res.json(docs);
+    } catch (error) {
+        console.error('Error fetching all documents:', error);
+        return res.status(500).json({ error: 'Fel vid hämtning av dokument' });
+    }
 });
-
 
 // Uppdatera ett dokument
 router.post('/update', async (req, res) => {
@@ -60,6 +60,7 @@ router.post('/update', async (req, res) => {
     }
 });
 
+// Skicka e-post
 router.post('/email', (req, res) => { 
     const { email, title } = req.body;
 
@@ -87,43 +88,4 @@ router.post('/email', (req, res) => {
     });
 });
 
-// Lägg till en kommentar till ett dokument
-router.post('/comment', async (req, res) => {
-    const { documentId, line, comment, username } = req.body;
-
-    if (!documentId || !line || !comment || !username) {
-        return res.status(400).json({ error: 'Alla fält måste vara ifyllda' });
-    }
-
-    try {
-        const result = await documents.addComment(documentId, line, comment, username);
-        return res.status(200).json(result); // Returnera resultatet av kommentartillägget
-    } catch (error) {
-        console.error('Error adding comment:', error);
-        return res.status(500).json({ error: 'Fel vid tillägg av kommentar' });
-    }
-});
-
-
-
-// Hämta kommentarer för ett dokument
-router.get('/comments/:id', async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const comments = await documents.getComments(id);
-        if (comments.length === 0) {
-            return res.status(404).json({ error: 'Inga kommentarer hittades för detta dokument' });
-        }
-        return res.json(comments);
-    } catch (error) {
-        console.error('Error fetching comments:', error);
-        return res.status(500).json({ error: 'Fel vid hämtning av kommentarer' });
-    }
-});
-
-
-
-
-
-export default router;
+module.exports = router;

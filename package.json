@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Starter project for DV1677 JSRamverk",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "test": "jest --coverage",
     "start": "node app.js",
     "clean": "rm -rf node_modules package-lock.json",
     "eslint": "eslint .",

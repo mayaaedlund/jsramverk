@@ -1,11 +1,4 @@
 {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "modules": "commonjs"  // Anger att Babel ska transpilerar till CommonJS
-        }
-      ]
-    ]
+    "presets": ["@babel/preset-env"]
   }
   

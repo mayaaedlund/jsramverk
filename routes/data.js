@@ -1,6 +1,6 @@
-import express from 'express';
-import data from "../models/data.mjs";
-import auth from "../models/auth.mjs";
+const express = require('express');
+const data = require("../models/data.js");
+const auth = require("../models/auth.js");
 
 const router = express.Router();
 
@@ -24,4 +24,4 @@ router.delete('/',
     (req, res) => data.deleteData(res, req)
 );
 
-export default router;
+module.exports = router;

@@ -1,4 +1,4 @@
-import database from "../database.mjs";
+const database = require("../database.js");
 
 const users = {
     getAll: async function (res, apiKey) {
@@ -16,8 +16,8 @@ const users = {
 
             if (keyObject.users) {
                 returnObject = keyObject.users.map(function (user) {
-                    return { user_id: user.user_id, email: user.email };  // Add user_id here
-                });                
+                    return { user_id: user.user_id, email: user.email };
+                });
             }
 
             return res.status(200).json({
@@ -38,4 +38,4 @@ const users = {
     }
 };
 
-export default users;
+module.exports = users;

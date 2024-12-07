@@ -1,5 +1,5 @@
-import express from 'express';
-import auth from "../models/auth.mjs";
+const express = require('express');
+const auth = require("../models/auth.js");
 
 const router = express.Router();
 
@@ -57,4 +57,4 @@ router.get('/', (req, res) => {
     res.redirect('/documentation.html');
 });
 
-export default router;
+module.exports = router;
