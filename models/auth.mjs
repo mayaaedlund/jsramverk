@@ -12,7 +12,7 @@ dotenv.config();
 
 
 const jwtSecret = process.env.JWT_SECRET;
-const API_KEY = process.env.API_KEY;  // Lägg till detta för att läsa från .env
+const API_KEY = process.env.API_KEY;
 
 
 const auth = {

@@ -87,5 +87,43 @@ router.post('/email', (req, res) => {
     });
 });
 
+// Lägg till en kommentar till ett dokument
+router.post('/comment', async (req, res) => {
+    const { documentId, line, comment, username } = req.body;
+
+    if (!documentId || !line || !comment || !username) {
+        return res.status(400).json({ error: 'Alla fält måste vara ifyllda' });
+    }
+
+    try {
+        const result = await documents.addComment(documentId, line, comment, username);
+        return res.status(200).json(result); // Returnera resultatet av kommentartillägget
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        return res.status(500).json({ error: 'Fel vid tillägg av kommentar' });
+    }
+});
+
+
+
+// Hämta kommentarer för ett dokument
+router.get('/comments/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const comments = await documents.getComments(id);
+        if (comments.length === 0) {
+            return res.status(404).json({ error: 'Inga kommentarer hittades för detta dokument' });
+        }
+        return res.json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        return res.status(500).json({ error: 'Fel vid hämtning av kommentarer' });
+    }
+});
+
+
+
+
 
 export default router;

@@ -5,7 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "test": "nyc --reporter=text --reporter=lcov mocha --exit",
+    "coverage": "nyc --reporter=text --reporter=lcov mocha --exit",
+    "posttest": "npm run eslint",
+    "type": "module",
     "start": "node app.js",
     "clean": "rm -rf node_modules package-lock.json",
     "eslint": "eslint .",
@@ -32,16 +35,12 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
     "@babel/register": "^7.25.9",
-    "babel-jest": "^29.7.0",
     "chai": "^4.5.0",
     "chai-http": "^4.4.0",
     "eslint": "^5.15.3",
     "eslint-plugin-react": "^7.12.4",
     "javascript-style-guide": "^1.0.1",
-    "jest": "^29.7.0",
     "mocha": "^10.8.2",
     "node-html-parser": "^1.1.12",
     "node-mocks-http": "^1.16.1",
@@ -50,6 +49,27 @@
     "socket.io-client": "^4.8.1",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2"
+  },
+  "nyc": {
+    "reporter": [
+      "text",
+      "lcov"
+    ],
+    "exclude": [
+      "test/**"
+    ],
+    "include": [
+      "app.mjs",
+      "routes/*.mjs",
+      "backend/**/*.mjs"
+    ],
+    "extension": [
+      ".js",
+      ".mjs"
+    ],
+    "require": [
+      "@babel/register"
+    ]
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
