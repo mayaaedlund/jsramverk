@@ -1,5 +1,5 @@
-import database from '../database.mjs';
-import { ObjectId } from 'mongodb';
+const database = require('../database.js');
+const { ObjectId } = require('mongodb');
 
 const data = {
     getAllDataForUser: async function (res, req) {
@@ -207,4 +207,4 @@ const data = {
     }
 };
 
-export default data;
+module.exports = data;

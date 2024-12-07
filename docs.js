@@ -1,8 +1,5 @@
-//import openDb from './db/database.mjs';
-
-import database from './database.mjs';
-import { ObjectId } from 'mongodb';
-
+const database = require('./database.js');
+const { ObjectId } = require('mongodb');
 
 const docs = {
     getAll: async function getAll() {
@@ -20,7 +17,6 @@ const docs = {
     },
 
     getOne: async function getOne(id) {
-        //let db = await openDb();
         let db = await database.getDb();
 
         try {
@@ -36,14 +32,13 @@ const docs = {
 
     addOne: async function addOne(body) {
         let db = await database.getDb();
-    
+
         try {
-            // Använd insertOne för att skapa ett nytt dokument
             const result = await db.collection.insertOne({
                 title: body.title,
                 content: body.content,
                 owner: body.username,
-                access: body.email
+                access: body.email,
             });
             return result;
         } catch (e) {
@@ -53,7 +48,6 @@ const docs = {
             await db.client.close();
         }
     },
-    
 
     updateOne: async function updateOne(id, body) {
         let db = await database.getDb();
@@ -68,6 +62,5 @@ const docs = {
         }
     },
 };
-    
 
-export default docs;
+module.exports = docs;

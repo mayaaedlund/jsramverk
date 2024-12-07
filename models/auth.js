@@ -1,35 +1,29 @@
-import dotenv from 'dotenv';
-import database from "../database.mjs";
-import hat from "hat";
-import validator from "email-validator";
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import pkg from 'uuid';
-const { v4: uuidv4 } = pkg;
-
-
-dotenv.config();
-
+require('dotenv').config();
+const database = require("../database.js");
+const hat = require("hat");
+const validator = require("email-validator");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
 
 const jwtSecret = process.env.JWT_SECRET;
 const API_KEY = process.env.API_KEY;
 
-
 const auth = {
     checkAPIKey: function (req, res, next) {
-        if ( req.path == '/') {
+        if (req.path == '/') {
             return next();
         }
 
-        if ( req.path == '/api_key') {
+        if (req.path == '/api_key') {
             return next();
         }
 
-        if ( req.path == '/api_key/confirmation') {
+        if (req.path == '/api_key/confirmation') {
             return next();
         }
 
-        if ( req.path == '/api_key/deregister') {
+        if (req.path == '/api_key/deregister') {
             return next();
         }
 
@@ -46,7 +40,6 @@ const auth = {
 
             if (keyObject) {
                 await db.client.close();
-
                 return next();
             }
 
@@ -218,7 +211,7 @@ const auth = {
         const email = body.email;
         const password = body.password;
         const apiKey = body.api_key;
-    
+
         if (!email || !password) {
             return res.status(401).json({
                 errors: {
@@ -229,25 +222,23 @@ const auth = {
                 }
             });
         }
-    
+
         let db;
-    
+
         try {
             db = await database.getDb();
-    
+
             const filter = { key: apiKey };
             const userRecord = await db.collection.findOne(filter);
-    
+
             if (userRecord) {
-                // Hitta användaren baserat på e-post
                 const user = userRecord.users.find(u => u.email === email);
-    
+
                 if (user) {
                     return auth.comparePasswords(res, password, user);
                 }
             }
-    
-            // Om användaren inte hittas
+
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -269,21 +260,12 @@ const auth = {
             await db.client.close();
         }
     },
-    
 
     comparePasswords: async function(res, inputPassword, user) {
         try {
-            console.log("Input password:", inputPassword); // Logga det inskickade lösenordet
-            console.log("User object:", user); // Logga hela användarobjektet
-            console.log("Stored hashed password:", user.password); // Logga det hashade lösenordet från databasen
-    
-            // Jämför det angivna lösenordet med det sparade hashade lösenordet
             const match = await bcrypt.compare(inputPassword, user.password);
-            console.log("Password match result:", match); // Logga om lösenorden matchar eller inte
-    
+
             if (match) {
-                // Lösenorden matchar, returnera framgångsmeddelande
-                console.log("Passwords match. User successfully logged in."); // Bekräfta matchning
                 return res.status(200).json({
                     data: {
                         message: "User successfully logged in.",
@@ -292,8 +274,6 @@ const auth = {
                     }
                 });
             } else {
-                // Lösenorden matchar inte
-                console.log("Passwords do not match."); // Indikera att lösenorden inte stämde
                 return res.status(401).json({
                     errors: {
                         status: 401,
@@ -304,8 +284,6 @@ const auth = {
                 });
             }
         } catch (err) {
-            // Fel uppstod vid jämförelsen
-            console.error("Error during password comparison:", err.message); // Logga felet
             return res.status(500).json({
                 errors: {
                     status: 500,
@@ -316,13 +294,12 @@ const auth = {
             });
         }
     },
-    
 
     register: async function(res, body) {
         const email = body.email;
         const password = body.password;
         const apiKey = body.api_key;
-    
+
         if (!email || !password) {
             return res.status(401).json({
                 errors: {
@@ -333,46 +310,47 @@ const auth = {
                 }
             });
         }
-    
+
         bcrypt.hash(password, 10, async function(err, hash) {
             if (err) {
                 return res.status(500).json({
                     errors: {
                         status: 500,
                         source: "/register",
-                        title: "bcrypt error",
-                        detail: "bcrypt error"
+                        title: "Password hashing error",
+                        detail: err.message
                     }
                 });
             }
-    
-            let db;
-    
+
             try {
-                db = await database.getDb();
-    
-                let filter = { key: apiKey };
-                let updateDoc = {
-                    $push: {
-                        users: {
-                            email: email,
-                            password: hash,
+                const db = await database.getDb();
+
+                const filter = { key: apiKey };
+                const userRecord = await db.collection.findOne(filter);
+
+                if (userRecord) {
+                    const user = {
+                        email: email,
+                        password: hash
+                    };
+
+                    await db.collection.updateOne({ key: apiKey }, { $push: { users: user } });
+
+                    return res.status(200).json({
+                        data: {
+                            message: "User registered successfully.",
+                            email: user.email
                         }
-                    }
-                };
-    
-                const result = await db.collection.updateOne(filter, updateDoc);
-                
-                // Hämta användaren och returnera med användarens id (_id)
-                const user = await db.collection.findOne(filter);
-                const newUser = user.users.find(u => u.email === email); // Hitta användaren baserat på email
-    
-                // Skicka tillbaka användaren med deras ID
-                return res.status(201).json({
-                    data: {
-                        message: "User successfully registered.",
-                        user_id: newUser._id,  // Använd MongoDB's _id här
-                        email: newUser.email
+                    });
+                }
+
+                return res.status(401).json({
+                    errors: {
+                        status: 401,
+                        source: "/register",
+                        title: "Invalid API key",
+                        detail: "API key is not valid."
                     }
                 });
             } catch (e) {
@@ -381,47 +359,12 @@ const auth = {
                         status: 500,
                         source: "/register",
                         title: "Database error",
-                        detail: err.message
+                        detail: e.message
                     }
                 });
-            } finally {
-                await db.client.close();
             }
         });
-    },
-    
-
-    checkToken: function(req, res, next) {
-        let token = req.headers['x-access-token'];
-        let apiKey = req.query.api_key || req.body.api_key;
-
-        if (token) {
-            jwt.verify(token, jwtSecret, function(err, decoded) {
-                if (err) {
-                    return res.status(401).json({
-                        errors: {
-                            status: 401,
-                            source: "/api",
-                            title: "Invalid token",
-                            detail: "The provided token is invalid."
-                        }
-                    });
-                } else {
-                    req.user = decoded;
-                    next();
-                }
-            });
-        } else {
-            return res.status(403).json({
-                errors: {
-                    status: 403,
-                    source: "/api",
-                    title: "No token provided",
-                    detail: "No token provided"
-                }
-            });
-        }
     }
 };
 
-export default auth;
+module.exports = auth;
