@@ -83,4 +83,9 @@ app.get("/", (req, res) => res.send("Hejsan, hoppsan"));
 
 docs.getAll();
 
+httpServer.listen(process.env.PORT || 5000, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT || 5000}`);
+});
+
+
 module.exports = app;

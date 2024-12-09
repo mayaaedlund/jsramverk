@@ -71,7 +71,7 @@ router.post('/email', (req, res) => {
         to: [email],
         subject: `Inbjudan att redigera dokumentet ${title}`,
         text: "hejhej",
-        html: `<p>Registrera dig och börja redigera <a href="http://localhost:3000/register">här</a></p>`,
+        html: `<p>Registrera dig och börja redigera <a href="https://www.student.bth.se/register">här</a></p>`,
     })
     .then(response => {
         console.log('E-post skickad:', response);
