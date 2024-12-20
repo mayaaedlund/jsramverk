@@ -11,6 +11,8 @@ const users = require('./routes/users.js');
 const data = require('./routes/data.js');
 const authModel = require('./models/auth.js');
 
+const port = process.env.PORT || 5000;
+
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -20,7 +22,7 @@ const httpServer = createServer(app);
 // Setup för Socket.IO
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:3000", // Klientens URL
+        origin: "*", // Klientens URL
         methods: ["GET", "POST"], // HTTP-metoder tillåtna för Socket.IO
     },
 });
@@ -61,6 +63,7 @@ app.disable('x-powered-by');
 app.set("view engine", "ejs");
 
 app.use(cors());
+
 app.use(express.static(path.join(process.cwd(), "public")));
 
 // Logger för produktion
